@@ -5,7 +5,5 @@
 int main(int argc, char **argv)
 {
 
-    printf("Hello integral!");
-
     return 0;
 }
