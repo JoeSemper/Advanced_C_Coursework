@@ -1,1 +1,2 @@
-void print_All_intersection_points(float eps)
+void print_all_intersection_points(float eps);
+float print_area(float eps1, size_t eps2);
