@@ -17,6 +17,14 @@ void read_arguments(int argc, char **argv, struct parameters *params)
             params->need_help = true;
             break;
 
+        case steps:
+            params->steps = true;
+            break;
+
+        case abscissas:
+            params->abscissas = true;
+            break;
+
         case eps1:
             params->eps1 = strtod(optarg, NULL);
             break;

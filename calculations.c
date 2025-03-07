@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "calculations.h"
 
 #define N_ROOTS 5  // Количество точек пересечения графиков
@@ -61,7 +62,7 @@ int signF(float x, function f)
     return f(x) == 0 ? 0 : (f(x) < 0 ? -1 : +1);
 }
 
-float rootFindDiv2(float xl, float xr, float eps, function f)
+float rootFindDiv2(float xl, float xr, float eps, function f, bool print_steps)
 {
     int stepcount = 0; // число шагов
     float xm;
@@ -71,12 +72,14 @@ float rootFindDiv2(float xl, float xr, float eps, function f)
         xm = (xl + xr) / 2; // середина отрезка
         if (f(xr) == 0)
         { // нашли решение на правой границе
-            printf("Find root for %d steps\n", stepcount);
+            if (print_steps)
+                printf("Find root for %d steps\n", stepcount);
             return xr;
         }
         if (f(xl) == 0)
         { // нашли решение на левой границе
-            printf("Find root for %d steps\n", stepcount);
+            if (print_steps)
+                printf("Find root for %d steps\n", stepcount);
             return xl;
         }
         if (signF(xl, f) != signF(xm, f)) // если знак отличается
@@ -84,53 +87,54 @@ float rootFindDiv2(float xl, float xr, float eps, function f)
         else
             xl = xm;
     }
-    printf("Find root for %d steps\n", stepcount); // статистика
+    if (print_steps)
+        printf("Find root for %d steps\n", stepcount); // статистика
     return (xl + xr) / 2;
 }
 
 // Функции поиска точек пересечения исходных функций
 
-float root_f1(float xl, float xr, float eps)
+float root_f1(float xl, float xr, float eps, bool print_steps)
 {
-    return rootFindDiv2(xl, xr, eps, f1);
+    return rootFindDiv2(xl, xr, eps, f1, print_steps);
 }
 
-float root_f2(float xl, float xr, float eps)
+float root_f2(float xl, float xr, float eps, bool print_steps)
 {
-    return rootFindDiv2(xl, xr, eps, f2);
+    return rootFindDiv2(xl, xr, eps, f2, print_steps);
 }
 
-float root_f1_f3(float xl, float xr, float eps)
+float root_f1_f3(float xl, float xr, float eps, bool print_steps)
 {
-    return rootFindDiv2(xl, xr, eps, f1_f3);
+    return rootFindDiv2(xl, xr, eps, f1_f3, print_steps);
 }
 
-float root_f2_f3(float xl, float xr, float eps)
+float root_f2_f3(float xl, float xr, float eps, bool print_steps)
 {
-    return rootFindDiv2(xl, xr, eps, f2_f3);
+    return rootFindDiv2(xl, xr, eps, f2_f3, print_steps);
 }
 
-float root_f1_f2(float xl, float xr, float eps)
+float root_f1_f2(float xl, float xr, float eps, bool print_steps)
 {
-    return rootFindDiv2(xl, xr, eps, f1_f2);
+    return rootFindDiv2(xl, xr, eps, f1_f2, print_steps);
 }
 
 // Нахождение всех точек пересечения функций
-void find_all_intersection_points(float eps, float points[])
+void find_all_intersection_points(float eps, float points[], bool print_steps)
 {
-    points[0] = root_f1_f3(root_intervals[0].xl, root_intervals[0].xr, eps);
-    points[1] = root_f2_f3(root_intervals[1].xl, root_intervals[1].xr, eps);
-    points[2] = root_f1_f3(root_intervals[2].xl, root_intervals[2].xr, eps);
-    points[3] = root_f2_f3(root_intervals[3].xl, root_intervals[3].xr, eps);
-    points[4] = root_f1_f2(root_intervals[4].xl, root_intervals[4].xr, eps);
+    points[0] = root_f1_f3(root_intervals[0].xl, root_intervals[0].xr, eps, print_steps);
+    points[1] = root_f2_f3(root_intervals[1].xl, root_intervals[1].xr, eps, print_steps);
+    points[2] = root_f1_f3(root_intervals[2].xl, root_intervals[2].xr, eps, print_steps);
+    points[3] = root_f2_f3(root_intervals[3].xl, root_intervals[3].xr, eps, print_steps);
+    points[4] = root_f1_f2(root_intervals[4].xl, root_intervals[4].xr, eps, print_steps);
 }
 
 // Печать всех точек пересечения
-void print_all_intersection_points(float eps)
+void print_all_intersection_points(float eps, bool print_steps)
 {
     float points[N_ROOTS];
 
-    find_all_intersection_points(eps, points);
+    find_all_intersection_points(eps, points, print_steps);
 
     printf("Intersection points: ");
 
@@ -147,6 +151,7 @@ void print_all_intersection_points(float eps)
             printf(", ");
         }
     }
+    printf("\n");
 }
 
 // Функция вычисления интеграла
@@ -164,11 +169,11 @@ float calcIntegralTrap(float xl, float xr, size_t n, function f)
 // Нахождение интервалов точек для вычисления интегралов
 void find_integral_intervals(float eps, float points[])
 {
-    points[0] = root_f1_f3(integral_intervals[0].xl, integral_intervals[0].xr, eps);
-    points[1] = root_f1(integral_intervals[1].xl, integral_intervals[1].xr, eps);
-    points[2] = root_f1_f3(integral_intervals[2].xl, integral_intervals[2].xr, eps);
-    points[3] = root_f2(integral_intervals[3].xl, integral_intervals[3].xr, eps);
-    points[4] = root_f1_f2(integral_intervals[4].xl, integral_intervals[4].xr, eps);
+    points[0] = root_f1_f3(integral_intervals[0].xl, integral_intervals[0].xr, eps, false);
+    points[1] = root_f1(integral_intervals[1].xl, integral_intervals[1].xr, eps, false);
+    points[2] = root_f1_f3(integral_intervals[2].xl, integral_intervals[2].xr, eps, false);
+    points[3] = root_f2(integral_intervals[3].xl, integral_intervals[3].xr, eps, false);
+    points[4] = root_f1_f2(integral_intervals[4].xl, integral_intervals[4].xr, eps, false);
 }
 
 float calculate_integral(float eps1, size_t eps2)
@@ -190,4 +195,5 @@ float print_area(float eps1, size_t eps2)
     float integral = calculate_integral(eps1, eps2);
 
     printf("Area of the figure = %f\n", integral);
+    printf("\n");
 }
